@@ -14,8 +14,7 @@ get_effect <- function(df2,pop,i,factrnames){
   all_perms<-map(1:r,~unique(c(combinat::permn(c(rep(1,nfact-1-.x),rep(2,.x))), combinat::permn(c(rep(2,nfact-1-.x),rep(1,.x))))))
   #relevant later
   length_perms <- map_dbl(all_perms,length)
-  denominators=map_dbl(1:length(length_perms),~nfact*(ncol(combn(nfact-1,.))))
-  
+  denominators=map_dbl(1:length(length_perms),~nfact*(ncol(utils::combn(nfact-1,.))))
   
   #extract values, calculate products
   prod_tibs<-tibble(

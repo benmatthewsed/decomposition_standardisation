@@ -57,4 +57,3 @@ left_join(bm,jk) %>% select_if(is.numeric) %>% select(-age) %>% mutate_all(.,abs
   cor %>%
   ggcorrplot::ggcorrplot(.,lab=T)
 
-
