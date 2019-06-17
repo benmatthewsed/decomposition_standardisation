@@ -634,6 +634,7 @@ dg_five <- function(df, year_one, year_two) {
 dg_five_nest <- function(year_one, year_two, df1, df2) {
   
   
+  
   A <- df1 %>%
     select(prev)
   

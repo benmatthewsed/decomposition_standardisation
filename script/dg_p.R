@@ -1,48 +1,60 @@
+require(here)
 require(tidyverse)
 require(matrixStats)
-
-#take from Ben's code.
-testdf <- test_dat$data.x[[1]] %>% mutate(year=1989) %>%
-  bind_rows(.,
-            test_dat$data.y[[1]] %>% mutate(year=2011)
-  )
-testdf
-
-
-#below, i'm essentially trying to generalise the dg_five_nest function to P factors. 
-#
-
-#arguments (to be !!'d once running)
-testdf$pop<-testdf$year
-df<-testdf
-facts=c("prev","age_str","freq","disposal_prop","crime_type_prop")
-nfact=5
-
+require(conflicted)
+require(combinat)
+conflict_prefer("filter", "dplyr")
+splitAt <- function(x, pos) unname(split(x, cumsum(seq_along(x) %in% pos)))
+source(here("script","get_effect.R"))
 
 dg_p<-function(df,pop,...){
-  #function stuffs
-  out=enquo(out)
+#   #function stuffs
+#   out=enquo(out)
   pop=enquo(pop)
-  nfact = length(...)
+  factrs=map_chr(enquos(...),quo_name)
+  nfact=length(factrs)
+  print(factrs)
+  #########
+  #the eg. arguments (to be !!'d once running)
+  #########
+  #testdf$pop<-testdf$year
+  #df<-testdf
+  #factrs=c("prev","age_str","freq","disposal_prop","crime_type_prop")
+  #nfact=5
   
-  
-  df %>% group_by(pop) %>%    
+
+
+  ######
+  #function code
+  ######
+  #nest and make factor matrix
+  df %>% group_by(!!pop) %>%
     nest() %>%
-    #these are the factors we're interested in
     mutate(
-      factors_2_std = map(data, magrittr::extract,c("age_str","freq","disposal_prop","crime_type_prop")) %>% 
-        map(.,as.matrix) #replace strings with sym(...)
-    ) %>% 
-    #select(-data) %>% spread(pop, factors_2_std) %>% unnest()  #not here.. 
-    mutate(
-      pop_prods=map(factors_2_std,rowProds)     #calculate total products (can simply divide by \alpha afterwards)
-    ) %>% print
-    # now comes difficult part.. the different combinations..
-    facts
-  
-  
-  
+      factor_df = map(data, magrittr::extract,factrs), #replace factrs with sym(...)
+      factor_mat = map(factor_df,as.matrix),
+      pop_prods=map(factor_mat,rowProds) #calculate total products (can simply divide by \alpha afterwards)
+    ) -> df_nested
+
+  #
+  #equivalent to Q1, Q2, ....  in Ben's function, this will loop over them
+  suppressMessages(map_dfc(1:nfact,~get_effect(df_nested,pop,.x,factrs))) #%>%
+    #bind_cols(df %>% select(-factrs,-!!pop) %>% distinct,.))
 }
 
 
-       
+
+
+#e.g. taken from Ben's code.
+readRDS(here("data","testdf_long.RDS")) -> testdf
+readRDS(here("data","BMresult.RDS")) -> bm
+
+
+jk<-dg_p(testdf,year,prev,age_str,freq,disposal_prop,crime_type_prop) %>% 
+  bind_cols(testdf %>% select(age,crime_type,disposal) %>% distinct,.)       
+#check same as ben's
+left_join(bm,jk) %>% select_if(is.numeric) %>% select(-age) %>% mutate_all(.,abs) %>%
+  cor %>%
+  ggcorrplot::ggcorrplot(.,lab=T)
+
+
