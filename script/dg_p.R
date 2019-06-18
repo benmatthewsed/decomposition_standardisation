@@ -38,8 +38,9 @@ dg_p<-function(df,pop,...){
 
   #
   #equivalent to Q1, Q2, ....  in Ben's function, this will loop over them
-  suppressMessages(map_dfc(1:nfact,~get_effect(df_nested,pop,.x,factrs))) #%>%
+  suppressMessages(map_dfc(1:nfact,~get_effect(df_nested,pop,.x,factrs))) %>%
     #bind_cols(df %>% select(-factrs,-!!pop) %>% distinct,.))
+  rename_at(vars(names(.)),~paste0(factrs,"_effect"))
 }
 
 
@@ -53,7 +54,7 @@ readRDS(here("data","BMresult.RDS")) -> bm
 jk<-dg_p(testdf,year,prev,age_str,freq,disposal_prop,crime_type_prop) %>% 
   bind_cols(testdf %>% select(age,crime_type,disposal) %>% distinct,.)       
 #check same as ben's
-left_join(bm,jk) %>% select_if(is.numeric) %>% select(-age) %>% mutate_all(.,abs) %>%
+left_join(bm,jk,by=c("age","crime_type","disposal")) %>% select_if(is.numeric) %>% select(-age) %>% mutate_all(.,abs) %>%
   cor %>%
   ggcorrplot::ggcorrplot(.,lab=T)
 
