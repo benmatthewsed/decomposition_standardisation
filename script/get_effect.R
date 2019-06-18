@@ -7,7 +7,7 @@ get_effect <- function(df2,pop,i,factrnames){
     pop_prod = map2(pop_prods,alpha, ~ (.x/.y))
   ) -> qdf
   
-  pop_facts<-qdf %>% select(year,factor_df2) %>% spread(year,factor_df2) %>% unnest()
+  pop_facts<-qdf %>% select(!!pop,factor_df2) %>% spread(!!pop,factor_df2) %>% unnest()
   
   #these are the permutations of column indices in pop facts according to DG formula (p15)
   r=ceiling(nfact/2)-1
@@ -31,17 +31,16 @@ get_effect <- function(df2,pop,i,factrnames){
     #as_tibble(.,.name_repair="universal") %>% 
     #add in the first part of the equation (abcd+ABCD)
     mutate(
-      p0=qdf %>% select(year,pop_prod) %>% 
-        spread(year,pop_prod) %>% 
+      p0=qdf %>% select(!!pop,pop_prod) %>% 
+        spread(!!pop,pop_prod) %>% 
         unnest %>% 
         rowSums() %>% 
         map2_dbl(.,nfact,~(.x/.y))
     ) -> sum_prods
   
-  #extract alpha and multiple by Q
-  qdf %>% select(year,alpha) %>% spread(year,alpha) %>% unnest %>%
-    mutate_all(.,.funs ~map2_dbl(.,rowSums(sum_prods),~(.x*.y))) -> effects
-  
-  return(unname(unlist(c(effects[,1]-effects[,2]))))
+  #extract alpha and multiply by Q
+  qdf %>% select(!!pop,alpha) %>% spread(!!pop,alpha) %>% unnest %>%
+    map(.,~.x*rowSums(sum_prods)) -> effects
+  return(effects[[1]]-effects[[2]])
 }
 
