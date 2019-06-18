@@ -41,6 +41,6 @@ get_effect <- function(df2,pop,i,factrnames){
   #extract alpha and multiply by Q
   qdf %>% select(!!pop,alpha) %>% spread(!!pop,alpha) %>% unnest %>%
     map(.,~.x*rowSums(sum_prods)) -> effects
-  return(effects[[1]]-effects[[2]])
+  return(effects[[2]]-effects[[1]])
 }
 

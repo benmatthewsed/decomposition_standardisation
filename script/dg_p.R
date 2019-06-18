@@ -58,3 +58,29 @@ left_join(bm,jk,by=c("age","crime_type","disposal")) %>% select_if(is.numeric) %
   cor %>%
   ggcorrplot::ggcorrplot(.,lab=T)
 
+jk %>% group_by(age) %>%
+  summarise(
+    prev_effect = sum(prev_effect),
+    age_effect = sum(age_str_effect),
+    freq_effect = sum(freq_effect)
+  ) %>% ggplot(.,aes(x=age,y=prev_effect))+geom_point()+stat_smooth()
+
+jk %>% #group_by(age) %>%
+  summarise(
+    prev_effect = sum(prev_effect),
+    age_effect = sum(age_str_effect),
+    freq_effect = sum(freq_effect),
+    disposal_prop_effect = sum(disposal_prop_effect),
+    crime_type_prop_effect = sum(crime_type_prop_effect)
+  ) %>% mutate(
+    totaldiff=rowSums(abs(.)),
+    prev=100*(prev_effect/totaldiff),
+    age_ef=100*(age_effect/totaldiff),
+    freq=100*(freq_effect/totaldiff),
+    disp=100*(disposal_prop_effect/totaldiff),
+    crim=100*(crime_type_prop_effect/totaldiff)
+  ) %>% select(prev,age_ef,freq,disp,crim) %>% abs
+#this is the percentage distribution of effects.
+#so 
+
+
