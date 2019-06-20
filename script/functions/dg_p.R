@@ -1,18 +1,7 @@
 dg_p<-function(df,pop,factrs){
-#   #function stuffs
-#   out=enquo(out)
   pop=enquo(pop)
   nfact=length(factrs)
   print(factrs)
-  #########
-  #the eg. arguments (to be !!'d once running)
-  #########
-  #testdf$pop<-testdf$year
-  #df<-testdf
-  #factrs=c("prev","age_str","freq","disposal_prop","crime_type_prop")
-  #nfact=5
-  
-
 
   ######
   #function code
@@ -26,12 +15,15 @@ dg_p<-function(df,pop,factrs){
       pop_prods=map(factor_mat,rowProds) #calculate total products (can simply divide by \alpha afterwards)
     ) -> df_nested
 
-  #
-  #equivalent to Q1, Q2, ....  in Ben's function, this will loop over them
+  #the get_effect function will loop over the indices of your factors, and for 
+  #each factor A, it will get the BCD... adjusted rates for each population, and
+  #spit out the difference too.
+  #equivalent to Q1, Q2, ....  in Ben's function
   decomp_out<-suppressMessages(map(1:nfact,~get_effect(df_nested,pop,.x,factrs)))
   names(decomp_out)<-factrs
   return(decomp_out)
-    #bind_cols(df %>% select(-factrs,-!!pop) %>% distinct,.))
+
+      #bind_cols(df %>% select(-factrs,-!!pop) %>% distinct,.))
   #rename_at(vars(names(.)),~paste0(factrs,"_effect"))
 }
 
