@@ -32,16 +32,25 @@ left_join(bm,jk,by=c("age","crime_type","disposal")) %>% select_if(is.numeric) %
 #now lets do this for N populations.
 DasGupt_TS(testdf3,f="prev",pop=year,prev,age_str,freq,disposal_prop,crime_type_prop) -> dgtimeseries
 
-dgtimeseries
+
 #THIS... (i think) is the age,freq,ctype,disposal adjusted prevalence rates standardized across years by DG's method, AND the factor effects.
 
 bind_cols(testdf3 %>% select(age,crime_type,disposal) %>% distinct,dgtimeseries) %>%
   group_by(age) %>%
-  summarise_at(vars(matches("pop")),~sum(.)*10000) %>% ggplot(.,aes(x=age))+
-  geom_point(aes(y=pop1989))+stat_smooth(aes(y=pop1989))+
-  geom_point(aes(y=pop2011))+stat_smooth(aes(y=pop2011),col="red")+
-  geom_point(aes(y=pop2018))+stat_smooth(aes(y=pop2018),col="green")+
+  summarise_at(vars(matches("pop")),~sum(.)*10000) %>% 
+  gather("year","pop",2:4) %>%
+  ggplot(.,aes(x=age,y=pop,col=year))+geom_point()+stat_smooth()+
   NULL
+
+bind_cols(testdf3 %>% select(age,crime_type,disposal) %>% distinct,dgtimeseries) %>%
+  group_by(age) %>%
+  summarise_at(vars(matches("diff")),~sum(.)*10000) %>%
+  gather("years","diff",2:4) %>% 
+  ggplot(.,aes(x=age,y=diff,col=years))+geom_point()+stat_smooth()+
+  NULL
+  
+
+
 
 
 #crude rates?
