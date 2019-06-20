@@ -59,3 +59,9 @@ testdf3 %>% group_by(year) %>% summarise(crude=mean(prev)*10000)
 bind_cols(testdf3 %>% select(age,crime_type,disposal) %>% distinct,dgtimeseries) %>%
   summarise_at(vars(matches("pop")),~sum(.)*10000)
 
+
+map(c("prev","age_str","freq","disposal_prop","crime_type_prop"), ~DasGupt_TS(testdf3,f=.,pop=year,prev,age_str,freq,disposal_prop,crime_type_prop)) -> dgtimeseries
+
+names(dgtimeseries)<-c("prev","age_str","freq","disposal_prop","crime_type_prop")
+dgtimeseries %>% str
+
