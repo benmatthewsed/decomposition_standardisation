@@ -5,10 +5,10 @@ library(conflicted)
 library(combinat)
 conflict_prefer("filter", "dplyr")
 #devtools::install_github("josiahpjking/DasGuptR",force=T)
-library(DasGuptR)
-
+#library(DasGuptR)
+lapply(list.files("../DasGuptR/R/",full.names = T),source)
 #e.g. taken from Ben's code.
-readRDS(here("data","testdf_long.RDS")) -> testdf
+readRDS(here("data","testdf_long.RDS")) -> testdf2
 readRDS(here("data","BMresult.RDS")) -> bm
 readRDS("data/testdf_3years.RDS") -> testdf3
 
