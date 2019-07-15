@@ -1,0 +1,117 @@
+---
+title: "What's driving Scotland's falling reconviction rate?"
+author: "Ben Matthews and Josiah King"
+date: "`r format(Sys.time(), '%A %d %B %Y')`"
+output: 
+  tufte::tufte_html: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Last month Scottish Government released the [Reconviction Rates in Scotland statistical bulletin for the 2016/17 cohort](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/). These figures show a steady long-term fall in the reconviction rate in
+Scotland[^0].
+
+[^0]: This coincided with a fall in [police recorded crime and victimization in Scotland too](http://www.research.aqmen.ac.uk/crime-and-victimisation-research-overview/).
+
+But not all demographic groups have seen this fall in reconvictions - for example, 
+the reconviction rate for women
+over the age of 30 has _increased_, despite the overall
+fall in the reconviction rate. 
+
+> Figure Two here - graph of these
+
+We've also seen substantial changes over time in number of people convicted
+(known as the _prevalence_ of conviction)[^1], again with divergent trends
+for men and women of different ages. These trends in prevalence
+have a knock-on effect on the reconviction rate because they affect the
+proportions of people of different ages who are convicted in a given year. 
+These proportions - the 'offender mix' - can influence the overall
+reconviction rate _even if the reconviction rates don't change for any age group_.
+This is
+because different age and sex groups typically have different reconviction rates[^5], and
+the overall reconviction rate the is just average of the conviction rates for each
+group, _weighted by the size of the group_. As a result, changes in the proportions of 
+younger to older people and men to women convicted can affect the overall
+reconviction rate without groups' reconviction rates changing at all.
+This confusing phenomenon is known as Simpson's paradox, and
+has been ientified in places as diverse as statistics on [kidney-stone removals](https://en.wikipedia.org/wiki/Simpson%27s_paradox#Kidney_stone_treatment)
+to [baseball batting averages](https://en.wikipedia.org/wiki/Simpson%27s_paradox#Batting_averages).
+
+[^1]: Ben wrote about these long-term differences in conviction rates in Scotland by age and sex with Jon Minton [here](http://journals.sagepub.com/doi/abs/10.1177/1477370817731706).
+
+[^5]: Typically young people will be convicted at higher rates than older people, and men at higher rates than women.
+
+
+One implication of this paradox is that the fall in the reconviction rate
+is not only a measure of changes in reoffending - it also reflects changes
+in the mix of people coming into the justice system (i.e. being convicted) in the first place.
+This also means that we don't know exactly how much of the fall in the overall
+reconviction rates is due to reductions in reoffending, and much is due to
+these changes in prevalence, which may reflect things like diversion from
+prosecution or social changes which mean that fewer people offend.
+
+## What can we do about it?
+
+This problem - disentangling the effects of change in prevalence from
+other factors affecting overall population rates of some variable we're interested in - is a common one in demography, where
+researchers want to understand how much differences between
+rates (such as mortality rates) in different countries are due to their different population
+structures. We can use the methods demographers have developed to apportion
+the amount of change in the reconviction rate that is due to actual
+reductions in reoffending, and how much is due to changes in the mix of
+people convicted[^3]. Specifically, we use the pair of techniques known as
+standardization and decomposition.
+Standardization shows us what the reconviction rate
+would have been under different scenarios - for example, if there was no change in the
+prevalence of conviction for different demographic groups or
+if there was no change in the frequency of conviction for different demographic
+groups - and decomposition gives us the percentage of the difference in rates
+between two years attributable to each of the factors we have included in the
+standardization.
+
+## Results
+
+
+[^3]: The code and data used for our analysis is available [here](https://github.com/josiahpjking/DasGuptR)
+
+> Put in results here
+
+We also examine how much of the change in prevalence was
+due to underlying population change in the numbers of
+men and women of different ages in Scotland[^2].
+
+[^2]: Population ageing can reduce conviction rates, as young people are more likely
+to commit crime than older people - but only very slowly (Zimring, 2007)
+
+
+## What have we learned?
+
+There are four main takeaways from these results:
+
+_First:_ all three factors of prevalence, frequency and age-structure
+have contributed to the falling reconviction rate. Probably frequency more than the other two.
+
+_Second:_ Our results show that men and women of different ages have very different trends in conviction
+and reconviction. The overall fall in the reconviction rate has been driven predominately by young people,
+and young men in particular. We need to recognize these age and sex differences in
+how convictions patterns have changed in Scotland, and not assume that the overall fall has
+been seen for all groups. 
+
+_Third:_ As well as supporting people who come into contact with the justice system,
+we also need to broaden our understanding of the causes of this fall in prevalence, and why
+some groups - but not others - have become less likely to be convicted in the
+first place. 
+
+In this blog we've looked at the causes, of the change in the reconviction rate, but not the [_causes_ of the causes](https://www.abc.net.au/news/2016-09-03/boyer-lecture-sir-michael-marmot-highlights-health-inequalities/7810382).
+In Sweden, researchers have shown that there's a distinct socio-economic status gradient to the crime drop ([2017](http://journals.sagepub.com/doi/full/10.1177/1477370816682979)[^4]): 
+_"Those from a less well-resourced background have come to account for an increasingly large proportion of registered crime, whereas the reverse is true for those from a more affluent background."_ 
+This suggests thatwe need to understand the interaction between
+crime and wider inequalities in Scottish society.
+The Understanding Inequalities
+project aims to understand how inequalities in Scottish society
+interset, and how they imapct on crime and responses to crime. You can find out more about Understanding Inequalities's work on crime [here](https://www.understanding-inequalities.ac.uk/research-themes/crime).
+
+[^4]: Note: This paper is behind a paywall.
+
