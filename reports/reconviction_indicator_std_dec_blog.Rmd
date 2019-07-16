@@ -7,78 +7,175 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE)
+library(tidyverse)
+require(matrixStats)
+library(conflicted)
+require(combinat)
+conflict_prefer("filter","dplyr")
+conflict_prefer("select","dplyr")
 ```
 
-Last month Scottish Government released the [Reconviction Rates in Scotland statistical bulletin for the 2016/17 cohort](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/). These figures show a steady long-term fall in the reconviction rate in
-Scotland[^0].
+Last month Scottish Government released the [Reconviction Rates in Scotland statistical bulletin for the 2016/17 cohort](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/). 
+These figures show a steady long-term fall in the reconviction rate in Scotland[^0].  
 
 [^0]: This coincided with a fall in [police recorded crime and victimization in Scotland too](http://www.research.aqmen.ac.uk/crime-and-victimisation-research-overview/).
 
-But not all demographic groups have seen this fall in reconvictions - for example, 
-the reconviction rate for women
-over the age of 30 has _increased_, despite the overall
-fall in the reconviction rate. 
+Scottish Government's reconviction rate is calculated as the _average number of reconvictions per offender_ (and was previously a national indicator). 
+Not all demographic groups have seen this fall in this measure, however. For example, the reconviction rate for women
+over the age of 30 has _increased_, despite the overall fall in the reconviction rate. 
 
 > Figure Two here - graph of these
 
-We've also seen substantial changes over time in number of people convicted
-(known as the _prevalence_ of conviction)[^1], again with divergent trends
-for men and women of different ages. These trends in prevalence
-have a knock-on effect on the reconviction rate because they affect the
-proportions of people of different ages who are convicted in a given year. 
-These proportions - the 'offender mix' - can influence the overall
-reconviction rate _even if the reconviction rates don't change for any age group_.
-This is
-because different age and sex groups typically have different reconviction rates[^5], and
-the overall reconviction rate the is just average of the conviction rates for each
-group, _weighted by the size of the group_. As a result, changes in the proportions of 
-younger to older people and men to women convicted can affect the overall
+```{r plotting}
+rdata<-readRDS("recdata.RDS")
+rdata %>% group_by(year,Gender,Age) %>%
+  summarise_at(vars(contains("num")),sum) %>%
+  mutate(
+    rate = (num_reconvicted/num_offenders)*100,
+    sg_freq = num_reconvictions/num_offenders,
+    Age = fct_relevel(Age,"under 21")
+  ) %>% 
+  ggplot(.,aes(x=year,y=sg_freq,col=Gender))+
+  geom_path()+facet_grid(~Age)+
+  ylab("Average number of reconvictions per offender")+
+  ggtitle("SG reconviction rate")+
+  theme_bw()+theme(axis.text.x = element_text(angle = 45, hjust = 1))+
+  NULL -> p
+plotly::ggplotly(p)
+#or just p :)
+```
+
+
+We've also seen substantial changes over time in number of people convicted (known as the _prevalence_ of conviction)[^1], again with divergent trends for men and women of different ages. 
+These trends in prevalence of conviction have a knock-on effect on the reconviction rate because they affect the proportions of people of different ages who are convicted in a given year. 
+These proportions - the 'offender mix' - can influence the overall reconviction rate _even if the reconviction rates don't change for any age group_.
+This is because different age and sex groups typically have different reconviction rates[^5], and the overall reconviction rate the is just average of the conviction rates for each group, _weighted by the size of the group_. 
+As a result, changes in the proportions of younger to older people and men to women convicted can affect the overall
 reconviction rate without groups' reconviction rates changing at all.
 This confusing phenomenon is known as Simpson's paradox, and
-has been ientified in places as diverse as statistics on [kidney-stone removals](https://en.wikipedia.org/wiki/Simpson%27s_paradox#Kidney_stone_treatment)
+has been identified in places as diverse as statistics on [kidney-stone removals](https://en.wikipedia.org/wiki/Simpson%27s_paradox#Kidney_stone_treatment)
 to [baseball batting averages](https://en.wikipedia.org/wiki/Simpson%27s_paradox#Batting_averages).
 
 [^1]: Ben wrote about these long-term differences in conviction rates in Scotland by age and sex with Jon Minton [here](http://journals.sagepub.com/doi/abs/10.1177/1477370817731706).
 
 [^5]: Typically young people will be convicted at higher rates than older people, and men at higher rates than women.
 
+One implication of this paradox is that the fall in the reconviction rate is not only a measure of changes in reoffending - it also reflects changes in the mix of people coming into the justice system (i.e. being convicted) in the first place.
+This also means that we don't know exactly how much of the fall in the overall reconviction rates is due to reductions in reoffending, and much is due to these changes in offender mix, which may reflect things like diversion from prosecution or social changes which mean that fewer people offend.
 
-One implication of this paradox is that the fall in the reconviction rate
-is not only a measure of changes in reoffending - it also reflects changes
-in the mix of people coming into the justice system (i.e. being convicted) in the first place.
-This also means that we don't know exactly how much of the fall in the overall
-reconviction rates is due to reductions in reoffending, and much is due to
-these changes in prevalence, which may reflect things like diversion from
-prosecution or social changes which mean that fewer people offend.
+<!---
+Similarly, the proportion of offenders who are reconvicted will also influence the _average number of reconvictions per offender_. 
+As an example, imagine that in a given year, there are 100 people convicted, 10 of whom are reconvicted. Each of these 10 is reconvicted 5 times, meaning that this cohort of 100 offenders has between them 50 reconvictions, equating to an average of 0.5 reconvictions per offender. 
+In another year, there are again 100 people convicted, 50 of whom are reconvicted, but only once each. This year, again there is an average of 0.5 reconvictions per offender. 
+--->
+
+
 
 ## What can we do about it?
 
-This problem - disentangling the effects of change in prevalence from
-other factors affecting overall population rates of some variable we're interested in - is a common one in demography, where
-researchers want to understand how much differences between
-rates (such as mortality rates) in different countries are due to their different population
-structures. We can use the methods demographers have developed to apportion
-the amount of change in the reconviction rate that is due to actual
-reductions in reoffending, and how much is due to changes in the mix of
-people convicted[^3]. Specifically, we use the pair of techniques known as
-standardization and decomposition.
-Standardization shows us what the reconviction rate
-would have been under different scenarios - for example, if there was no change in the
-prevalence of conviction for different demographic groups or
-if there was no change in the frequency of conviction for different demographic
-groups - and decomposition gives us the percentage of the difference in rates
-between two years attributable to each of the factors we have included in the
-standardization.
+This problem - disentangling the effects of change in offender mix from other factors affecting overall population rates of some variable we're interested in - is a common one in demography, where researchers want to understand how much differences between
+rates (such as mortality rates) in different countries are due to their different population structures. 
+
+We can use the methods demographers have developed to apportion the amount of change in the reconviction rate that is due to actual
+reductions in reoffending, and how much is due to changes in the mix of people convicted[^3]. Specifically, we use the pair of techniques known as _standardization_ and _decomposition_.
+
+Standardization shows us what the reconviction rate would have been under different scenarios - for example, if there was no change in the prevalence of conviction for different demographic groups (no change in the offender mix) or if there was no change in the frequency of conviction for different demographic groups - and decomposition gives us the percentage of the difference in rates between two years attributable to each of the factors we have included in the standardization.
 
 ## Results
+
+```{r DGstuff, include=FALSE}
+rdata %>% group_by(year,Gender,Age) %>%
+  summarise_at(vars(contains("num")),sum) %>% 
+  left_join(., rdata %>% group_by(year) %>% summarise(total=sum(num_offenders))
+  ) %>%
+  mutate(
+    age_str=num_offenders/total, # this is the age structure of convicted population
+    prev=num_reconvicted/num_offenders, # this is the prevalence of reconviction
+    freq=num_reconvictions/num_reconvicted) %>% # this is the frequency or reconviction (according to SG)
+  ungroup -> rdata
+
+require(DasGuptR)
+#make sure devtools::install_github("josiahpjking/DasGuptR",force=TRUE)
+na.omit(rdata) %>% DasGupt_Npop(.,pop=year,prev,freq,age_str,id_vars=c(Age,Gender)) -> dg_decompose
+```
+
+Following a method developed by [Das Gupta](link?), we can examine the reconviction rate (the average number of reconvictions per offender) when adjusting for:  
+- the age/sex structure of the convicted population (the offender mix)  
+- the prevalence of reconviction (the proportion of offenders who reconvict)  
+- and the frequency of reconvictions (the average number of reconvictions per reconvicted offender)   
+
+```{r adj_rates}
+rdata %>% mutate(rate=prev*freq*age_str) %>%
+  group_by(year) %>% 
+  summarise(
+    rate=sum(rate),
+    factor="crude"
+  ) %>% 
+  bind_rows(.,
+              dg_decompose %>% 
+              group_by(factor) %>%
+              summarise_at(vars(starts_with("pop")),sum) %>% 
+              gather(year,rate,starts_with("pop")) %>%
+              mutate(year=as.numeric(gsub("pop","",year)))
+  ) %>%
+  mutate(
+    rate_type=fct_recode(factor(factor),
+                         "Crude"="crude",
+                         "adjusted for frequency and\nprevalence of reconvictions"="age_str",
+                         "adjusted for offender mix and\nfrequency of reconvictions"="prev",
+                         "adjusted for offender mix and\nprevalence of reconvictions"="freq"
+    )
+  ) %>%
+  ggplot(.,aes(x=year,y=rate,col=rate_type))+
+  geom_path()+
+  scale_color_manual(values = c("red","black", "blue", "green"))+
+  theme_bw()+
+  ylab("average number of convictions per offender")+
+  NULL
+```
+
+
+
+```{r}
+pop1=2004
+pop2=2016
+
+#ADJUSTED RATES
+dg_decompose %>% 
+  group_by(factor) %>% 
+  summarise(
+    !!paste0("rate",pop1):=sum(get(paste0("pop",pop1))),
+    !!paste0("rate",pop2):=sum(get(paste0("pop",pop2)))
+  ) %>% gather(year,rate,starts_with("rate")) %>% 
+  mutate(year=as.numeric(gsub("rate","",year))) -> std_rates
+
+#DG TABLE - CRUDE & DECOMP
+rdata %>% mutate(rate=prev*freq*age_str) %>%
+            filter(year %in% c(pop1,pop2)) %>%
+            group_by(year) %>% summarise(rate=sum(rate)) %>%
+            mutate(factor="crude") %>%
+  spread(year,rate) %>% 
+  mutate(difference=get(paste0(pop1))-get(paste0(pop2))) %>%
+  #bind, and diff
+  bind_rows(std_rates %>%
+              spread(year,rate) %>%
+              mutate(difference=get(paste0(pop1))-get(paste0(pop2))),
+            .) %>%
+  mutate(percent_dist=100*(difference/difference[factor=="crude"])) -> dgtable
+
+dgtable %>% mutate(percent_dist=round(percent_dist)) %>% knitr::kable(.,digits=2)
+```
+
+
 
 
 [^3]: The code and data used for our analysis is available [here](https://github.com/josiahpjking/DasGuptR)
 
 > Put in results here
 
-We also examine how much of the change in prevalence was
+
+may be We also examine how much of the change in prevalence was
 due to underlying population change in the numbers of
 men and women of different ages in Scotland[^2].
 
