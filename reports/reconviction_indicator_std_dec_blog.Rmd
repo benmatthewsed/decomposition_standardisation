@@ -136,6 +136,8 @@ rdata %>% mutate(rate=prev*freq*age_str) %>%
 ```
 
 
+We can also look more closely at how these different factors contribute to the change in rates between two years.
+For example, between the years 2004 and 2016... 
 
 ```{r}
 pop1=2004
@@ -167,6 +169,7 @@ rdata %>% mutate(rate=prev*freq*age_str) %>%
 dgtable %>% mutate(percent_dist=round(percent_dist)) %>% knitr::kable(.,digits=2)
 ```
 
+42% of the change in the _average number of reconvictions per offender_ is attributable to the reductions in the proportion of offenders who are being reconvicted. 33% is attributable to the changing age/sex structure of the convicted population, and 25% attributable to reductions in how frequently reconvicted offenders are reconvicted.
 
 
 
