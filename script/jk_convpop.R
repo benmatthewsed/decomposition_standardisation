@@ -28,8 +28,9 @@ plotly::ggplotly(p)
 #DAS GUPTR
 
 #get population age structure
-popdata<-readRDS("age_structure_Scotland.RDS") %>% 
+popdata<-readRDS("script/archive/age_structure_Scotland.RDS") %>% 
   rename(pop_agestr=age_str)
+#popdata2<-readRDS("script/agestructure_scotlandNUM.RDS")
 
 rdata %>% group_by(year,Gender,Age) %>%
   summarise_at(vars(contains("num")),sum) %>% 
@@ -41,12 +42,15 @@ rdata %>% group_by(year,Gender,Age) %>%
     freq=num_reconvictions/num_reconvicted) %>% # this is the frequency or reconviction (according to SG)
   left_join(.,popdata) %>% ungroup -> rdata
 
+popdata2<-readRDS("script/agestructure_scotlandNUM.RDS")
+rdata %>% left_join(.,popdata2) -> rdata
+
 
 
 lapply(list.files("../DasGuptR/R/",full.names = T),source)
 # or library(DasGuptR)
 na.omit(rdata) %>% 
-DasGupt_Npop(.,pop=year,prev,freq,age_str,id_vars=c(Age,Gender)) -> dg_decompose
+  DasGupt_Npop(.,pop=year,prev,freq,age_str,id_vars=c(Age,Gender)) -> dg_decompose
 #DasGupt_Npop(.,pop=year,prev,freq,age_str,pop_agestr,id_vars=c(Age,Gender)) -> dg_decompose
 
 #######
@@ -56,10 +60,13 @@ DasGupt_Npop(.,pop=year,prev,freq,age_str,id_vars=c(Age,Gender)) -> dg_decompose
 pop1=2004
 pop2=2016
 
+
+
 #these are our 'crude rates' in terms of DG "rate as product of factors"
 rdata %>% mutate(dgcrude_rate=prev*freq*age_str) %>% 
   group_by(year) %>% summarise_at(vars(matches("rate|num")),sum) %>%
-  mutate(sg_rate=num_reconvictions/num_offenders) #they are the same as the SG "average number of reconvictions per offender"
+  mutate(sg_rate=num_reconvictions/num_offenders,
+         s=num_reconvictions/num_offenders) #they are the same as the SG "average number of reconvictions per offender"
 
 #CRUDE RATE DIFFERENCE
 rdata %>% mutate(rate=prev*freq*age_str) %>%
@@ -82,9 +89,9 @@ dg_decompose %>%
 
 #DG TABLE - CRUDE & DECOMP
 rdata %>% mutate(rate=prev*freq*age_str) %>%
-            filter(year %in% c(pop1,pop2)) %>%
-            group_by(year) %>% summarise(rate=sum(rate)) %>%
-            mutate(factor="crude") %>%
+  filter(year %in% c(pop1,pop2)) %>%
+  group_by(year) %>% summarise(rate=sum(rate)) %>%
+  mutate(factor="crude") %>%
   spread(year,rate) %>% mutate(difference=get(paste0(pop1))-get(paste0(pop2))) %>%
   #bind, and diff
   bind_rows(std_rates %>%
@@ -110,7 +117,7 @@ rdata %>% mutate(rate=prev*freq*age_str) %>%
     factor="crude"
   ) %>% 
   bind_rows(.,
-              dg_decompose %>% 
+            dg_decompose %>% 
               group_by(factor) %>%
               summarise_at(vars(starts_with("pop")),sum) %>% 
               gather(year,rate,starts_with("pop")) %>%
@@ -126,10 +133,11 @@ rdata %>% mutate(rate=prev*freq*age_str) %>%
   ) %>%
   ggplot(.,aes(x=year,y=rate,col=rate_type))+
   geom_path()+
-  scale_color_manual(values = c("red","black", "blue", "green"))+
+  #scale_color_manual(values = c("red","black", "blue", "green"))+
   theme_bw()+
   ylab("average number of convictions per offender")+
-  NULL
+  NULL -> p1
+plotly::ggplotly(p1)
 # red line. what it would look like if prevalence of reconviction and numbers of reconvictions per reconvicted were held constant
 # blue line. what it would look like if prevalence of reconviction and offender mix were held constant
 # green line. what it would look like if number of reconvictions per reconvicted and offender mix were held constant
@@ -149,27 +157,28 @@ rdata %>% mutate(rate=prev*freq) %>%
   ) %>% 
   #get the adjusted rates for each age/sex group
   bind_rows(.,
-              dg_decompose2 %>% 
+            dg_decompose2 %>% 
               group_by(factor,Age,Gender) %>%
               summarise_at(vars(starts_with("pop")),sum) %>% 
               gather(year,rate,starts_with("pop")) %>%
               mutate(year=as.numeric(gsub("pop","",year))) #%>%
-              #left_join(rdata %>% select(year,Age,Gender,age_str)) %>%
-              #mutate(rate=rate/age_str)
-  ) %>%
+            #left_join(rdata %>% select(year,Age,Gender,age_str)) %>%
+            #mutate(rate=rate/age_str)
+  ) %>% ungroup %>%
   mutate(
     rate_type=fct_recode(factor(factor),
                          "Crude"="crude",
                          "Frequency adjusted"="prev",
                          "Prevalence adjusted"="freq"
-    )
+    ),
+    Age=fct_relevel(Age,"under 21")
   ) %>%
-  ggplot(.,aes(x=year,y=rate,lty=rate_type,col=Gender))+
+  ggplot(.,aes(x=year,y=rate,lty=factor,col=Gender))+
   facet_grid(~Age)+
   geom_path()+
-  scale_color_manual(values = c("black","red", "blue", "green"))+
   theme_bw()+
-  NULL
+  NULL -> p2
+plotly::ggplotly(p2)
 
 
 
@@ -244,7 +253,7 @@ rdata %>%
   scale_color_manual(values = c("red","black", "blue", "green"))+
   theme_bw()+
   ylab("reconviction rate\n(percentage of offenders reconvicted)")+
-  ylim(0,80)
-  NULL
+  NULL->p3
+plotly::ggplotly(p3)
 
 

@@ -20,11 +20,9 @@ conflict_prefer("select","dplyr")
 ```
 
 
-Last month Scottish Government released the [Reconviction Rates in Scotland statistical bulletin for the 2016/17 cohort](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/). The headline figure in this bulletin is the average number of reconvictions per offender, and 
-last month's bulletin shows a steady long-term fall in the reconviction rate in Scotland[^0]. Whilst this is overall fall in the reconviction rate is undoubtedly good news,
-in this post we'll show that interpreting this trend is not
-as straightforward as it might seem.
+Last month Scottish Government released the [Reconviction Rates in Scotland statistical bulletin for the 2016/17 cohort](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/). One of the headline figures in this bulletin is the average number of reconvictions per offender (hereafter referred to as the _reconviction rate_[^00]), and last month's bulletin shows a steady long-term fall in this measure in Scotland[^0]. Whilst this is overall fall in the reconviction rate is undoubtedly good news, in this post we'll show that interpreting this trend is not as straightforward as it might seem.
 
+[^00]: This is not to be confused with what Scottish Government have recently begun to refer to as the reconviction rate - the percentage of offenders who are reconvicted. 
 [^0]: This coincided with a fall in [police recorded crime and victimization in Scotland too](http://www.research.aqmen.ac.uk/crime-and-victimisation-research-overview/).
 
 
@@ -39,7 +37,7 @@ First, not all demographic groups have seen this fall in this measure, as we can
 over the age of 30 has increased, despite the overall fall in the reconviction rate. 
 
 ```{r plotting}
-rdata <- readRDS(here::here("data", "recdata.RDS"))
+rdata <- readRDS("recdata.RDS")
 
 rdata %>%
   group_by(year, Gender, Age) %>%
@@ -212,11 +210,9 @@ dgtable %>% mutate(percent_dist=round(percent_dist)) %>% knitr::kable(.,digits=2
 ## So what?
 Prior to 2019, while it was still a National Indicator, Scottish Government said that
 the reconviction rate ["is one of the main ways of measuring how well we are managing and supporting those that enter our criminal justice system."](https://www2.gov.scot/About/Performance/scotPerforms/indicator/reconviction) 
-These results show this description doesn't quite capture the whole story. The reconviction indicator also
-picks up on falls in youth conviction, as well as measuring "how well we are managing and supporting those that enter our criminal justice system", it may also be picking up on
-changes to youth justice policy in Scotland which have [emphasised diversion from prosecution](http://scottishjusticematters.com/wp-content/uploads/Shrinking-YJ-population-SJM_5-1_April2017-18.pdf).
-It may also be picking up on broader social changes[^8] which have led to this shift in the demographic profile of the
-convicted population as a result of falling youth conviction.
+These results show this description doesn't quite capture the whole story, as the numbers capture not only changes in the frequency with which offenders are reconvicted, but also changes in the demographic mix of people who are entering the justice system each year.
+For instance, as well as measuring "how well we are managing and supporting those that enter our criminal justice system", the reconviction indicator may pick up on falls in youth conviction, perhaps due to changes to youth justice policy in Scotland which have [emphasised diversion from prosecution](http://scottishjusticematters.com/wp-content/uploads/Shrinking-YJ-population-SJM_5-1_April2017-18.pdf).
+It may also be picking up on broader social changes[^8] which have led to this shift in the demographic profile of the convicted population as a result of falling youth conviction.
 
 [^8]: Ben and Jon Minton discussed the different explanations for the crime drop [here](https://journals.sagepub.com/doi/full/10.1177/1477370817731706#_i2).
 
