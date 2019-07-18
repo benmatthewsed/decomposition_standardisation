@@ -12,11 +12,13 @@ library(tidyverse)
 require(matrixStats)
 library(conflicted)
 require(combinat)
+
 require(DasGuptR)
 #make sure devtools::install_github("josiahpjking/DasGuptR",force=TRUE)
 conflict_prefer("filter","dplyr")
 conflict_prefer("select","dplyr")
 ```
+
 
 Last month Scottish Government released the [Reconviction Rates in Scotland statistical bulletin for the 2016/17 cohort](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/). The headline figure in this bulletin is the average number of reconvictions per offender, and 
 last month's bulletin shows a steady long-term fall in the reconviction rate in Scotland[^0]. Whilst this is overall fall in the reconviction rate is undoubtedly good news,
@@ -77,7 +79,11 @@ to [baseball batting averages](https://en.wikipedia.org/wiki/Simpson%27s_paradox
 
 One implication of this paradox is that the fall in the reconviction rate is not only a measure of changes in reoffending - it also reflects changes in the mix of people coming into the justice system (i.e. being convicted) in the first place.
 This also means that we don't know exactly how much of the fall in the overall reconviction rate is due to reductions in reoffending, and much is due to these changes in offender mix, which may reflect things like diversion from prosecution or social changes which mean that fewer people offend.
-
+<!---
+Similarly, the proportion of offenders who are reconvicted will also influence the _average number of reconvictions per offender_. 
+As an example, imagine that in a given year, there are 100 people convicted, 10 of whom are reconvicted. Each of these 10 is reconvicted 5 times, meaning that this cohort of 100 offenders has between them 50 reconvictions, equating to an average of 0.5 reconvictions per offender. 
+In another year, there are again 100 people convicted, 50 of whom are reconvicted, but only once each. This year, again there is an average of 0.5 reconvictions per offender. 
+--->
 
 ## What can we do about it?
 
@@ -114,6 +120,7 @@ rdata %>%
   na.omit() %>% 
   DasGupt_Npop(.,pop=year,reconvs,age_str,id_vars=c(Age,Gender))
 ```
+
 
 Applying these methods to Scottish Government's reconvictions data[^6] gives us
 the standardized rates in Figure Two. Because both standardized rates are declining we can infer that the changing age-structure has played a role in reducing
