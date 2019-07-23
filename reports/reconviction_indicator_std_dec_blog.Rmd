@@ -52,48 +52,13 @@ rdata %>%
   ggplot(., aes(x = year, y = rate, col = Gender)) +
   geom_path() + 
   facet_grid(~Age) +
-  ylab("Reconviction Rate")+
+  labs(y = "Reconviction Rate",
+       x = "Year")+
   #ylab("Average number of reconvictions per offender") +
   #ggtitle("SG reconviction rate") +
   theme_bw() + 
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   NULL
-
-rdata %>%
-  group_by(year, Gender, Age) %>%
-  summarise_at(vars(contains("num")), sum) %>%
-  mutate(
-    rate = (num_reconvicted / num_offenders) * 100,
-    sg_freq = num_reconvictions / num_offenders,
-    Age = fct_relevel(Age, "under 21")
-  ) %>%
-  left_join(., rdata %>%
-              group_by(year) %>%
-              summarise_at(vars(contains("num")), sum) %>%
-              mutate(
-                overall_rate = (num_reconvicted / num_offenders)*100
-              ) %>% select(year,overall_rate)
-            ) %>% 
-  ggplot(., aes(x = year,y=rate, group = interaction(Age,Gender), col = Gender)) +
-  scale_colour_manual(values=c("#FAAB18","#1380A1"))+
-  geom_line(aes(y=overall_rate),col="grey70",lwd=.7)+
-  geom_line() + 
-  gghighlight(rate[year==2016]>rate[year==2004])+
-  ylab("Reconviction Rate")+
-  ggtitle("Figure 1")+
-  theme_bw() + 
-  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-  scale_x_continuous(breaks=2004:2016,labels=2004:2016,limits=c(2004,2018))+
-  geom_label(aes(x=2016,y=30.5,label="Men, 31-40"),col="#1380A1",hjust=0,label.size=NA)+
-  geom_label(aes(x=2016,y=27.5,label="Women, 31-40"),col="#FAAB18",hjust=0,label.size=NA)+
-  geom_label(aes(x=2014,y=29,label="National Average"),fontface = "bold",col="grey70",label.size=NA)+
-  geom_label(aes(x=2016,y=18,label="Women, 40+"),col="#FAAB18",hjust=0,label.size=NA)+
-  geom_label(aes(x=2016,y=20.5,label="Men, 40+"),col="#1380A1",hjust=0,label.size=NA)+
-  NULL
-  #gghighlight doesn't seem to want to give labels. it does when you do e.g., rate>30 but not when indexing e.g., rate[year==2004]>30. 
-  #also can't get the legend back! ah well. manual labels it is..
-  
-
 
 
 ```
@@ -119,7 +84,7 @@ to [baseball batting averages](https://en.wikipedia.org/wiki/Simpson%27s_paradox
 [^5]: Typically young people will be convicted at higher rates than older people, and men at higher rates than women.
 
 One implication of this effect is that the fall in the reconviction rate is not only a measure of changes in reoffending - it also reflects changes in the mix of people coming into the justice system (i.e. being convicted) in the first place.
-This also means that we don't know exactly how much of the fall in the overall reconviction rate is due to reductions in reoffending, and much is due to these changes in offender mix, which may reflect things like diversion from prosecution or social changes which mean that fewer people offend.
+This also means that we don't know exactly how much of the fall in the overall reconviction rate is due to reductions in reoffending, and how much is due to these changes in offender mix.
 <!---
 Similarly, the proportion of offenders who are reconvicted will also influence the _average number of reconvictions per offender_. 
 As an example, imagine that in a given year, there are 100 people convicted, 10 of whom are reconvicted. Each of these 10 is reconvicted 5 times, meaning that this cohort of 100 offenders has between them 50 reconvictions, equating to an average of 0.5 reconvictions per offender. 
@@ -206,11 +171,12 @@ rdata %>%
   scale_color_manual(values = c("black","#1b9e77","#d95f02"))+
   theme_bw()+
   labs(y = "Reconviction Rate",
-       colour = "Rate")+
+       colour = "Rate",
+       x = "Year")+
   theme(legend.position="bottom",axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(colour = guide_legend(nrow = 3, byrow = TRUE)) +
   scale_x_continuous(breaks=2004:2016,labels=2004:2016)+
-  geom_label(aes(x=2012,y=31,label="If reconviction rates for each group stayed\nthe same, the changing 'offender mix'\nwould mean the measure would still decrease"),col="#555555",size=3,label.size=NA,hjust=0,vjust=.5)+
+  geom_label(aes(x=2012,y=31,label="If reconviction rates for each group stayed\nthe same, the changing 'offender mix'\nwould mean the overall rate would still decrease"),col="#555555",size=3,label.size=NA,hjust=0,vjust=.5)+
   geom_curve(aes(x=2012,y=31,xend=2012,yend=29.7),col="#555555",curvature=.2,arrow=arrow(length=unit(.03,"npc")))+
   NULL
 ```
@@ -260,14 +226,14 @@ dgtable %>% mutate(
   `2004`=`2004`*100,
   `2016`=`2016`*100,
   difference=difference*100
-  ) %>% rename(`Percentage of crude` = percentage_of_crude) %>%
-  knitr::kable(.,digits=2) %>%
-  kableExtra::row_spec(3, bold = T, color = "white", background = "#555555") %>%
-  kableExtra::column_spec(5,bold=T)
+  ) %>% rename(`Percentage of unadjusted` = percentage_of_crude, Factor = factor,
+               Difference = difference) %>%
+  mutate(Factor = if_else(Factor == "Crude", "Unadjusted rate", as.character(Factor))) %>% 
+  knitr::kable(.,digits=2)
 ```
 
 
-[^3]: The code and data used for our analysis is available [here](https://github.com/josiahpjking/DasGuptR).
+[^3]: The code and data used for our analysis are available [here](https://github.com/josiahpjking/decomposition_standardisation).
 
 
 ## So what?
