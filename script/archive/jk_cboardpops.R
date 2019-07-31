@@ -76,7 +76,7 @@ popests %>% mutate(
 popests %>% group_by(year,laa) %>% summarise(totalpop=sum(num)) %>%
   left_join(popests,.) %>% ungroup %>%
   mutate(
-    age_str=num/totalpop,
     year=as.numeric(year)
-  ) %>% select(Age,age_str,year,Gender,laa) -> popests
+  ) -> popests
 
+saveRDS(popests,"data/LAA_popstructure.RDS")

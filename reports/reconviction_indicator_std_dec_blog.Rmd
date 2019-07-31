@@ -82,7 +82,7 @@ to [baseball batting averages](https://en.wikipedia.org/wiki/Simpson%27s_paradox
 [^5]: Typically young people will be convicted at higher rates than older people, and men at higher rates than women.
 
 One implication of this effect is that the fall in the reconviction rate is not only a measure of changes in reoffending - it also reflects changes in the mix of people coming into the justice system (i.e. being convicted) in the first place.
-The Scottish Government reconvictions bulletin refers to the fall in youth convictions being "significant driver in the reduction in the overall national reconviction rate", but it is difficult to know exactly how much of the headline declining reconviction rate is due to reductions in reoffending, and how much is due to these changes in offender mix.
+The Scottish Government reconvictions bulletin refers to the fall in youth convictions being a "significant driver in the reduction in the overall national reconviction rate". It is difficult, however, to quantify this phenomenon (i.e., to determine how much of the decrease in reconviction rate is due to reductions in reoffending, and how much is due to these changes in offender mix).
 <!---
 Similarly, the proportion of offenders who are reconvicted will also influence the _average number of reconvictions per offender_. 
 As an example, imagine that in a given year, there are 100 people convicted, 10 of whom are reconvicted. Each of these 10 is reconvicted 5 times, meaning that this cohort of 100 offenders has between them 50 reconvictions, equating to an average of 0.5 reconvictions per offender. 
