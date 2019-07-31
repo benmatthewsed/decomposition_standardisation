@@ -1,3 +1,6 @@
+require(readxl)
+require(here)
+
 download.file("https://www.nrscotland.gov.uk/files//statistics/population-projections/2016-based-scot/pop-pyramid-16-based.xlsm",destfile = here("pop_ests.xlsm"),mode = "wb")
 mpopdata<-read_xlsx(here("pop_ests.xlsm"),sheet = 4)[-1,]
 names(mpopdata)<-paste0("age",mpopdata[1,])
