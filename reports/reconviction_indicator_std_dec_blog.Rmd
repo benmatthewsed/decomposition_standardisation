@@ -1,23 +1,26 @@
 ---
 title: "What's driving Scotland's falling reconviction rate?"
 author: "Ben Matthews and Josiah King"
-date: "`r format(Sys.time(), '%A %d %B %Y')`"
-output: 
-  tufte::tufte_html: default
+date: "July 2019"
+output: word_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = FALSE,message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = FALSE,message=FALSE,
+                      warning=FALSE, dpi = 300)
 library(tidyverse)
 library(conflicted)
 library(gghighlight)
 library(kableExtra)
 
 require(DasGuptR)
-#make sure devtools::install_github("josiahpjking/DasGuptR",force=TRUE)
+# make sure devtools::install_github("josiahpjking/DasGuptR",force=TRUE)
 conflict_prefer("filter","dplyr")
 conflict_prefer("select","dplyr")
 ```
+
+## This document is a .doc version of a blog post available at https://www.understanding-inequalities.ac.uk/project-blog/what’s-driving-scotland’s-falling-reconviction-rate
+
 
 
 Last month Scottish Government released the [Reconviction Rates in Scotland statistical bulletin for the 2016/17 cohort](https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/). One of the headline figures in this bulletin is the _reconviction rate_[^00], calculated as the percentage of offenders who have been reconvicted within follow-up of one year. Last month's bulletin shows that Scotland's reconviction rate has fallen steadily over the last fifteen years[^0]. Whilst this overall fall in the reconviction rate is undoubtedly good news, in this post we'll show that interpreting this trend is not as straightforward as it might first seem.
@@ -36,7 +39,7 @@ this overall decline in the reconviction rate.
 First, the reconviction rate has not fallen for all demographic groups, as we can see from Figure One. For example, the reconviction rate for women
 over the age of 30 has increased, despite the overall fall in the reconviction rate. 
 
-```{r plotting}
+```{r plotting, type = "cairo", fig.width=6.25, fig.height=4}
 rdata <- readRDS("recdata.RDS")
 
 rdata %>%
@@ -137,10 +140,10 @@ it reads like we're in a paradox/vicious circle.
 --->
 The changing offender mix has played a role in reducing the overall reconviction rate.
 
-[^6]: You can download the data from https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/
+[^6]: You can download the data from https://www.gov.scot/publications/reconviction-rates-scotland-2016-17-offender-cohort/.
 
 
-```{r adj_rates}
+```{r adj_rates, type = "cairo", fig.width=6.25, fig.height=4}
 rdata %>% 
   mutate(rate = reconvs * age_str) %>%
   group_by(year) %>% 
@@ -174,7 +177,7 @@ rdata %>%
   theme(legend.position="bottom",axis.text.x = element_text(angle = 45, hjust = 1)) +
   guides(colour = guide_legend(nrow = 3, byrow = TRUE)) +
   scale_x_continuous(breaks=2004:2016,labels=2004:2016)+
-  geom_label(aes(x=2011.5,y=31,label="If reconviction rates for each group stayed\nthe same, the changing 'offender mix'\nwould mean the overall rate would still decrease"),col="#555555",size=3,label.size=NA,hjust=0,vjust=.5)+
+  geom_label(aes(x=2011.5,y=31,label="If reconviction rates for each group\nstayed the same, the changing 'offender mix'\nwould mean the overall rate\n  would still decrease"),col="#555555",size=3,label.size=NA,hjust=0,vjust=.5)+
   geom_curve(aes(x=2011.5,y=31,xend=2012,yend=29.7),col="#555555",curvature=.2,arrow=arrow(length=unit(.03,"npc")))+
   NULL
 ```
@@ -231,7 +234,7 @@ dgtable %>% mutate(
 ```
 
 
-[^3]: The code and data used for our analysis are available [here](https://github.com/josiahpjking/decomposition_standardisation). We also provide an implementation of Das Gupta's methods of standardization and decomposition in an R package: DasGuptR [(work in progress)](https://github.com/josiahpjking/DasGuptR)). 
+[^3]: The code and data used for our analysis are available [here](https://github.com/josiahpjking/decomposition_standardisation). We also provide an implementation of Das Gupta's methods of standardization and decomposition in an R package: DasGuptR [(work in progress)](https://github.com/josiahpjking/DasGuptR). 
 
 
 ## So what?
@@ -248,4 +251,4 @@ The Understanding Inequalities
 project aims to understand how inequalities in Scottish society - like those related to age and sex - 
 intersect, and how they impact on crime and responses to crime. You can find out more about our work on examining crime and inequality in Scotland [here](https://www.understanding-inequalities.ac.uk/research-themes/crime).
 
-[^4]: For example, in Sweden researchers have shown that there's a distinct [socio-economic status gradient to the crime drop](http://journals.sagepub.com/doi/full/10.1177/1477370816682979) (NB: This paper is behind a paywall.)
+[^4]: For example, in Sweden researchers have shown that there's a distinct [socio-economic status gradient to the crime drop](http://journals.sagepub.com/doi/full/10.1177/1477370816682979) (NB: This paper is behind a paywall).
